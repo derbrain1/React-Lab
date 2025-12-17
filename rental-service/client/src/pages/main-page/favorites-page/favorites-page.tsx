@@ -1,6 +1,6 @@
 import { Logo } from "../../../components/logo/logo";
 import { FavoriteCardList } from "../../../components/favorite-card-list/favorite-card-list";
-import type { OffersList } from "../../../mocks/offer";
+import type { OffersList } from "../../../types/offer";
 
 type FavoritesPageProps = {
   favoriteOffers: OffersList[];

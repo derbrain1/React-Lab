@@ -1,18 +1,33 @@
 import type { JSX } from "react";
 import { Logo } from "../../components/logo/logo";
-import type { FullOffer, OffersList } from "../../mocks/offer";
+import type { FullOffer, OffersList } from "../../types/offer";
 import { CitiesCardList } from "../../components/cities-card-list/cities-card-list";
+import { Map } from "../../components/map/map";
+
 
 type MainPageProps = {
     rentalOffersCount: number;
     offers: FullOffer[];
     offerList: OffersList[];
-    
-
 }
 
-function MainPage({rentalOffersCount, offerList} : MainPageProps): JSX.Element {
+function MainPage({ offerList} : MainPageProps): JSX.Element {
   const favoriteCount = offerList.filter(offer => offer.isFavorite).length;
+
+  
+  const amsterdamOffers = offerList.filter((offer) => offer.city.name === 'Amsterdam');
+  
+  
+  const currentCity = amsterdamOffers.length > 0 ? amsterdamOffers[0].city : {
+    name: 'Амстердам',
+    location: {
+      latitude: 52.37454,
+      longitude: 4.897976,
+      zoom: 13
+    }
+  };
+
+
 
   return(
     <div className ="page page--gray page--main">
@@ -86,7 +101,7 @@ function MainPage({rentalOffersCount, offerList} : MainPageProps): JSX.Element {
           <div className="cities__places-container container">
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
-              <b className="places__found">{rentalOffersCount} places to stay in Amsterdam</b>
+              <b className="places__found">{amsterdamOffers.length} places to stay in Amsterdam</b>
               <form className="places__sorting" action="#" method="get">
                 <span className="places__sorting-caption">Sort by</span>
                 <span className="places__sorting-type" tabIndex={0}>
@@ -96,19 +111,25 @@ function MainPage({rentalOffersCount, offerList} : MainPageProps): JSX.Element {
                   </svg>
                 </span>
                 <ul className="places__options places__options--custom places__options--opened">
-                  <li className="places__option places__option--active" tabIndex={0}>Popular</li>
+                  {/* <li className="places__option places__option--active" tabIndex={0}>Popular</li>
                   <li className="places__option" tabIndex={0}>Price: low to high</li>
                   <li className="places__option" tabIndex={0}>Price: high to low</li>
-                  <li className="places__option" tabIndex={0}>Top rated first</li>
+                  <li className="places__option" tabIndex={0}>Top rated first</li> */}
                 </ul>
               </form>
               <div className="cities__places-list places__list tabs__content">
                
-                {<CitiesCardList offersList={offerList} />}
+                <CitiesCardList offersList={amsterdamOffers} />
               </div>
             </section>
             <div className="cities__right-section">
-              <section className="cities__map map"></section>
+              <section className="cities__map map">
+                
+                <Map 
+                  city={currentCity} 
+                  offers={offerList} 
+                />
+              </section>
             </div>
           </div>
         </div>

@@ -7,17 +7,19 @@ import { LoginPage } from "../../pages/main-page/login-page/login-page";
 import { OfferPage } from "../../pages/main-page/offer-page/offer-page";
 import { NotFoundPage } from "../../pages/main-page/not-found-page/not-found-page";
 
-import type { FullOffer, OffersList } from "../../mocks/offer";
+import type { FullOffer, OffersList } from "../../types/offer";
 import offersList from "../../mocks/offers-list";
+import type { ReviewType } from "../../types/review";
 
 
 type AppMainPageProps = {
     rentalOffersCount: number;
     offerList: OffersList[];
     offers: FullOffer[];
+    reviews: ReviewType[];
 }
 
-function App({rentalOffersCount, offers}: AppMainPageProps): JSX.Element{
+function App({rentalOffersCount, offers, reviews}: AppMainPageProps): JSX.Element{
 
     return(
         <BrowserRouter>
@@ -28,7 +30,7 @@ function App({rentalOffersCount, offers}: AppMainPageProps): JSX.Element{
             offers={offers} offerList={offersList}/>}/>
             <Route path={AppRoute.Favorites} element={<FavoritesPage favoriteOffers={offersList}/>}/>
             <Route path={AppRoute.Login} element={<LoginPage/>}/>
-            <Route path={ `${AppRoute.Offer}/:id` } element={<OfferPage offers={offers}/>}/>
+            <Route path={ `${AppRoute.Offer}/:id` } element={<OfferPage  offers={offers}  offerList={offersList} reviews={reviews} />}/>
             <Route path="*" element={<NotFoundPage/>}/>
 
         </Routes>

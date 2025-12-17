@@ -1,4 +1,4 @@
-import type { OffersList } from './offer';
+import type { OffersList } from '../types/offer';
 
 export const offersList: OffersList[] = [
   {
@@ -7,16 +7,16 @@ export const offersList: OffersList[] = [
     type: 'apartment',
     price: 370,
     city: {
-      name: 'Paris',
+      name: 'Amsterdam',
       location: {
-        latitude: 48.85661,
-        longitude: 2.351499,
+        latitude: 52.3909553943508,
+        longitude: 4.85309666406198,
         zoom: 13,
       },
     },
     location: {
-      latitude: 48.85661,
-      longitude: 2.342499,
+      latitude: 52.3909553943508,
+      longitude: 4.85309666406198,
       zoom: 16,
     },
     isFavorite: true,
@@ -33,14 +33,14 @@ export const offersList: OffersList[] = [
     city: {
       name: 'Amsterdam',
       location: {
-        latitude: 52.37454,
-        longitude: 4.897976,
+        latitude: 52.3809553943508,
+        longitude:  4.939309666406198,
         zoom: 13,
       },
     },
     location: {
-      latitude: 52.37554,
-      longitude: 4.889976,
+      latitude: 52.3809553943508,
+      longitude:  4.939309666406198,
       zoom: 16,
     },
     isFavorite: false,
@@ -55,16 +55,16 @@ export const offersList: OffersList[] = [
     type: 'room',
     price: 90,
     city: {
-      name: 'Cologne',
+      name: 'Amsterdam',
       location: {
-        latitude: 50.938361,
-        longitude: 6.959974,
+        latitude: 52.3909553943508,
+        longitude: 4.929309666406198,
         zoom: 13,
       },
     },
     location: {
-      latitude: 50.937361,
-      longitude: 6.967974,
+      latitude: 52.3909553943508,
+      longitude: 4.929309666406198,
       zoom: 16,
     },
     isFavorite: false,
@@ -79,16 +79,16 @@ export const offersList: OffersList[] = [
     type: 'house',
     price: 260,
     city: {
-      name: 'Brussels',
+      name: 'Amsterdam',
       location: {
-        latitude: 50.846557,
-        longitude: 4.351697,
+        latitude: 52.3609553943508,
+        longitude:  4.85309666406198,
         zoom: 13,
       },
     },
     location: {
-      latitude: 50.848557,
-      longitude: 4.345697,
+      latitude: 52.3609553943508,
+      longitude:  4.85309666406198,
       zoom: 16,
     },
     isFavorite: true,

@@ -1,5 +1,5 @@
 import { FavoriteCard } from "../favorite-card/favorite-card";
-import type { OffersList } from "../../mocks/offer";
+import type { OffersList } from "../../types/offer";
 
 type FavoriteCardListProps = {
   favoriteOffers: OffersList[];

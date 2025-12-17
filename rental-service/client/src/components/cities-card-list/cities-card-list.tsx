@@ -1,4 +1,4 @@
-import type { OffersList } from '../../mocks/offer';
+import type { OffersList } from '../../types/offer';
 import { CitiesCard } from '../cities-card/cities-card';
 
 type CitiesCardListProps = {

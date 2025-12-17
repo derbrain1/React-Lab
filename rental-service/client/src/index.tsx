@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client'
 import { Setting } from './const'
 import offers from './mocks/offers'
 import offersList from './mocks/offers-list'
+import { reviews } from './mocks/reviews'
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -16,6 +17,7 @@ root.render(
       rentalOffersCount={Setting.rentOfferCount}
       offers={offers}
       offerList={offersList}
+      reviews={reviews}
       />
   </React.StrictMode>,
 )
