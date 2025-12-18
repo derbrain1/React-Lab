@@ -175,7 +175,6 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
             </div>
           </div>
           
-          
           <section className="offer__map map">
             <Map 
             offers={offersForMap} 
