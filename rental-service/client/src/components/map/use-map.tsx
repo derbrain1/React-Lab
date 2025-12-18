@@ -17,6 +17,7 @@ function useMap(
 ) {
   const [map, setMap] = useState<L.Map | null>(null);
   const isRenderedRef = useRef(false);
+  const prevCityRef = useRef(city.name); 
 
   useEffect(() => {
     if (mapRef.current !== null && !isRenderedRef.current) {
@@ -34,9 +35,12 @@ function useMap(
 
       setMap(instance);
       isRenderedRef.current = true;
+      prevCityRef.current = city.name;
+    } else if (map && prevCityRef.current !== city.name) {
+      map.setView([city.location.latitude, city.location.longitude], city.location.zoom);
+      prevCityRef.current = city.name;
     }
-  }, [mapRef, city]);
-
+  }, [mapRef, city, map]); 
   return map;
 }
 

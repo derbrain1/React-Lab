@@ -6,7 +6,6 @@ import useMap from './use-map';
 import type { OffersList } from '../../types/offer';
 import { AppRoute } from '../../const';
 
-
 const defaultIcon = L.icon({
   iconUrl: '/img/pin.svg',
   iconSize: [27, 39],
@@ -40,15 +39,31 @@ function Map({ offers, city, selectedOfferId }: MapProps): React.JSX.Element {
 
   
   useEffect(() => {
-    if (map) {
+    if (map && offers.length > 0) {
       
+      const bounds = L.latLngBounds([]);
+      offers.forEach((offer) => {
+        bounds.extend([offer.location.latitude, offer.location.longitude]);
+      });
+      
+      if (offers.length === 1) {
+        const [offer] = offers;
+        map.setView([offer.location.latitude, offer.location.longitude], city.location.zoom);
+      } else {
+        map.fitBounds(bounds, { padding: [50, 50] });
+      }
+    }
+  }, [map, city.location.zoom]); 
+
+  useEffect(() => {
+    if (map) {
+     
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
 
       
       offers.forEach((offer) => {
         const isSelected = selectedOfferId === offer.id;
-        
         
         const marker = L.marker(
           [offer.location.latitude, offer.location.longitude],
@@ -57,7 +72,6 @@ function Map({ offers, city, selectedOfferId }: MapProps): React.JSX.Element {
           }
         ).addTo(map);
 
-        
         marker.on('mouseover', function() {
           if (!isSelected) {
             this.setIcon(activeIcon);
@@ -70,9 +84,7 @@ function Map({ offers, city, selectedOfferId }: MapProps): React.JSX.Element {
           }
         });
 
-        
         marker.on('click', () => {
-       
           navigate(`${AppRoute.Offer}/${offer.id}`);
         });
 

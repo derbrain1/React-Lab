@@ -6,7 +6,8 @@ import { ReviewForm } from "../../../components/review-form/review-form";
 import type { ReviewType } from "../../../types/review";
 import { ReviewsList } from "../../../components/review-list/review-list";
 import { Map } from "../../../components/map/map";
-import { NearPlacesList } from "../../../components/near-place-list/near-place-list";
+import { useState } from "react";
+import { CitiesCardList } from "../../../components/cities-card-list/cities-card-list";
 
 type OfferProps = {
   offers: FullOffer[];
@@ -19,7 +20,7 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
   const params = useParams();
   const offer = offers.find((item) => item.id === params.id);
   const favoriteCount = offerList.filter(item => item.isFavorite).length;
-
+  const [hoveredOfferId, setHoveredOfferId] = useState<string | undefined>(undefined);
   if (!offer) {
     return <NotFoundPage/>;
   }
@@ -44,7 +45,8 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
   };
 
   const offersForMap = [currentOfferForMap, ...nearbyOffers];
-
+  
+  
   const cityForMap: CityOffer = {
     name: offer.city.name,
     location: {
@@ -108,7 +110,7 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
                 </h1>
                 <button className="offer__bookmark-button button" type="button">
                   <svg className="offer__bookmark-icon" width="31" height="33">
-                    <use href="#icon-bookmark"></use>
+                    <use href="/img/icon-bookmark.svg"></use>
                   </svg>
                   <span className="visually-hidden">To bookmarks</span>
                 </button>
@@ -176,17 +178,22 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
           
           <section className="offer__map map">
             <Map 
-              offers={offersForMap} 
-              city={cityForMap} 
-              selectedOfferId={offer.id}
-            />
+            offers={offersForMap} 
+            city={cityForMap} 
+            selectedOfferId={hoveredOfferId || offer.id} 
+          />
           </section>
         </section>
         
         <div className="container">
           <section className="near-places places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
-            <NearPlacesList offers={nearbyOffers} />
+            <CitiesCardList 
+                offersList={nearbyOffers} 
+                onCardHover={setHoveredOfferId}
+                cardClass="near-places__card place-card"
+              />
+            
           </section>
         </div>
       </main>
