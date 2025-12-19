@@ -23,6 +23,7 @@ function CitiesCardList({ offersList, onCardHover, cardClass }: CitiesCardListPr
           price={item.price}
           previewImage={item.previewImage}
           isPremium={item.isPremium}
+          isFavorite={item.isFavorite}
           rating={item.rating}
           onMouseEnter={() => onCardHover?.(item.id)}
           onMouseLeave={() => onCardHover?.(undefined)}
