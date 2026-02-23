@@ -13,6 +13,20 @@ async function getAllOffers(req, res, next) {
     }
 }
 
+async function getFavoriteOffers(req, res, next) {
+    try{
+        const favoriteOffers = await Offer.findAll({
+          where: {
+            isFavorite: true
+          }
+        });
+        
+        res.status(200).json(favoriteOffers);
+    }catch (error) {
+        next(ApiError.internal('Не удалось получить список избранных предложений'));
+    }
+}
+
 async function getFullOffer(req, res, next) {
     try{
         const { id } = req.params;
@@ -98,5 +112,20 @@ export async function createOffer(req, res, next) {
  }
 }
 
+const toogleFavorite = async (req, res, next) => {
+  try {
+    const {offerId, status} = req.params;
+    const offer = await Offer.findByPk(offerId);
+    if (!offer) {
+      return next(ApiError.notFound('Предложение не найдено'));
+    }
+    offer.isFavorite = status === '1';
+    await offer.save();
 
-export {getAllOffers, getFullOffer};
+    res.json(offer);
+  }catch (error) {
+    next(ApiError.internal('Ошибка при обновлении статуса избранного'));
+  }
+};
+
+export {getAllOffers, getFullOffer, toogleFavorite, getFavoriteOffers};
