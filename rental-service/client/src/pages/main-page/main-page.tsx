@@ -1,6 +1,5 @@
 import type { JSX } from "react";
 import { Logo } from "../../components/logo/logo";
-import type { FullOffer, OffersList } from "../../types/offer";
 import { CitiesCardList } from "../../components/cities-card-list/cities-card-list";
 import { Map } from "../../components/map/map";
 import { useState } from 'react';
@@ -10,20 +9,17 @@ import { getOffersByCity, sortOffersByType } from "../../utils";
 import type { SortOffer } from "../../types/sort";
 import { SortOptions } from "../../components/sort-options/sort-options.tsx";
 
-type MainPageProps = {
-    rentalOffersCount: number;
-    offers: FullOffer[];
-    offerList: OffersList[];
-}
 
-function MainPage({ offerList }: MainPageProps): JSX.Element {
-  const favoriteCount = offerList.filter(offer => offer.isFavorite).length;
+
+function MainPage(): JSX.Element {
+  
   
   const selectedCity = useAppSelector((state) => state.city);
   const offersListSelector = useAppSelector((state) => state.offers);
   const selectedCityOffers = getOffersByCity(selectedCity?.name ?? '', offersListSelector);
   const rentalOffersCount = selectedCityOffers.length;
-  
+  const offers = useAppSelector((state) => state.offers); 
+  const favoriteCount = offers.filter(offer => offer.isFavorite).length;
   const [activeSort, setActiveSort] = useState<SortOffer>('Popular');
   const [hoveredOfferId, setHoveredOfferId] = useState<string | undefined>(undefined);
   

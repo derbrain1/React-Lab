@@ -1,15 +1,16 @@
 import { Logo } from "../../../components/logo/logo";
 import { FavoriteCardList } from "../../../components/favorite-card-list/favorite-card-list";
-import type { OffersList } from "../../../types/offer";
 
-type FavoritesPageProps = {
-  favoriteOffers: OffersList[];
-};
+import { useAppSelector } from "../../../hooks";
 
-function FavoritesPage({ favoriteOffers }: FavoritesPageProps) {
 
-  const favoriteCount = favoriteOffers.filter(offer => offer.isFavorite).length;
 
+function FavoritesPage() {
+
+  // const favoriteCount = favoriteOffers.filter(offer => offer.isFavorite).length;
+  const offers = useAppSelector((state) => state.offers); 
+  const favoriteCount = offers.filter(offer => offer.isFavorite).length;
+  const favoriteOffers = offers.filter(offer => offer.isFavorite);
   return (
     <div className="page">
       <header className="header">

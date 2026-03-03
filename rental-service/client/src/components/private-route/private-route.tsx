@@ -10,7 +10,7 @@ type PrivateRouteProps = {
 
 function PrivateRoute(props: PropsWithChildren<PrivateRouteProps> ) {
     const { authorizationStatus, children} = props;
-
+    
     return (
         authorizationStatus === AuthorizationStatus.Auth
         ?children
