@@ -7,7 +7,7 @@ import { authenticateToken } from '../middleware/authMiddleware.js';
 const router = new Router();
 
 router.get('/offers', getAllOffers);
-router.get('/favorite', getFavoriteOffers);
+router.get('/favorite', authenticateToken, getFavoriteOffers);
 router.post('/favorite/:offerId/:status',authenticateToken, toogleFavorite);
 router.get('/offers/:id', getFullOffer)
 router.post('/offers', upload.fields([

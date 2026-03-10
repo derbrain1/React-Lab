@@ -1,18 +1,44 @@
 import { useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { postReviewAction } from '../../store/api-action';
+import React from 'react';
 
 function ReviewForm(): React.JSX.Element {
+  const dispatch = useAppDispatch();
   const [rating, setRating] = useState('');
   const [text, setText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const offerId = useAppSelector((state) => state.currentOffer?.id);
+  const reviewIsValid = rating !== '' && text.trim().length >= 50 && text.trim().length <= 300;
 
-  const reviewIsValid = rating !== '' && text.trim().length >= 50;
+  const ratings = [
+    { value: '5', title: 'perfect' },
+    { value: '4', title: 'good' },
+    { value: '3', title: 'not bad' },
+    { value: '2', title: 'badly' },
+    { value: '1', title: 'terribly' }
+  ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewIsValid) {
-      return;
+    if (!reviewIsValid || !offerId) return;
+
+    setIsSubmitting(true);
+    try {
+      await dispatch(postReviewAction({
+        offerId,
+        comment: text,
+        rating: Number(rating)
+      })).unwrap();
+      
+      setRating('');
+      setText('');
+    } catch (error) {
+      console.error('Ошибка при отправке отзыва:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-    setRating('');
-    setText('');
   };
 
   return (
@@ -22,80 +48,29 @@ function ReviewForm(): React.JSX.Element {
       </label>
       
       <div className="reviews__rating-form form__rating">
-        <input 
-          className="form__rating-input visually-hidden" 
-          name="rating" 
-          value="5" 
-          id="5-stars" 
-          type="radio"
-          checked={rating === '5'}
-          onChange={(e) => setRating(e.target.value)}
-        />
-        <label htmlFor="5-stars" className="reviews__rating-label form__rating-label" title="perfect">
-          <svg className="form__star-image" width="37" height="33">
-            <use href="/img/icon-star.svg"></use>
-          </svg>
-        </label>
-
-        <input 
-          className="form__rating-input visually-hidden" 
-          name="rating" 
-          value="4" 
-          id="4-stars" 
-          type="radio"
-          checked={rating === '4'}
-          onChange={(e) => setRating(e.target.value)}
-        />
-        <label htmlFor="4-stars" className="reviews__rating-label form__rating-label" title="good">
-          <svg className="form__star-image" width="37" height="33">
-            <use href="/img/icon-star.svg"></use>
-          </svg>
-        </label>
-
-        <input 
-          className="form__rating-input visually-hidden" 
-          name="rating" 
-          value="3" 
-          id="3-stars" 
-          type="radio"
-          checked={rating === '3'}
-          onChange={(e) => setRating(e.target.value)}
-        />
-        <label htmlFor="3-stars" className="reviews__rating-label form__rating-label" title="not bad">
-          <svg className="form__star-image" width="37" height="33">
-            <use href="/img/icon-star.svg"></use>
-          </svg>
-        </label>
-
-        <input 
-          className="form__rating-input visually-hidden" 
-          name="rating" 
-          value="2" 
-          id="2-stars" 
-          type="radio"
-          checked={rating === '2'}
-          onChange={(e) => setRating(e.target.value)}
-        />
-        <label htmlFor="2-stars" className="reviews__rating-label form__rating-label" title="badly">
-          <svg className="form__star-image" width="37" height="33">
-            <use href="/img/icon-star.svg"></use>
-          </svg>
-        </label>
-
-        <input 
-          className="form__rating-input visually-hidden" 
-          name="rating" 
-          value="1" 
-          id="1-star" 
-          type="radio"
-          checked={rating === '1'}
-          onChange={(e) => setRating(e.target.value)}
-        />
-        <label htmlFor="1-star" className="reviews__rating-label form__rating-label" title="terribly">
-          <svg className="form__star-image" width="37" height="33">
-            <use href="/img/icon-star.svg"></use>
-          </svg>
-        </label>
+        {ratings.map(({ value, title }) => (
+          <React.Fragment key={value}>
+            <input 
+              className="form__rating-input visually-hidden" 
+              name="rating" 
+              value={value} 
+              id={`${value}-stars`} 
+              type="radio"
+              checked={rating === value}
+              onChange={(e) => setRating(e.target.value)}
+              disabled={isSubmitting}
+            />
+            <label 
+              htmlFor={`${value}-stars`} 
+              className="reviews__rating-label form__rating-label" 
+              title={title}
+            >
+              <svg className="form__star-image" width="37" height="33">
+                <use href="/img/icon-star.svg"></use>
+              </svg>
+            </label>
+          </React.Fragment>
+        ))}
       </div>
       
       <textarea 
@@ -105,6 +80,7 @@ function ReviewForm(): React.JSX.Element {
         placeholder="Tell how was your stay, what you like and what can be improved"
         value={text}
         onChange={(e) => setText(e.target.value)}
+        disabled={isSubmitting}
       />
       
       <div className="reviews__button-wrapper">
@@ -114,9 +90,9 @@ function ReviewForm(): React.JSX.Element {
         <button 
           className="reviews__submit form__submit button" 
           type="submit" 
-          disabled={!reviewIsValid}
+          disabled={!reviewIsValid || isSubmitting}
         >
-          Submit
+          {isSubmitting ? 'Submitting...' : 'Submit'}
         </button>
       </div>
     </form>

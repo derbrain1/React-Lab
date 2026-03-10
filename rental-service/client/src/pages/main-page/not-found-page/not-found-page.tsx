@@ -1,6 +1,13 @@
 function NotFoundPage() {
     return (
-        <div>Страница не найдена</div>
+        <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '100vh' 
+        }}>
+            Страница не найдена
+        </div>
     )
 }
 

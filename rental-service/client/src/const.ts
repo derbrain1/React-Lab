@@ -4,6 +4,7 @@ const APIRoute = {
   Offers: '/offers',
   Login: '/login',
   Logout: '/logout',
+  Comments: '/comments',
 };
 const TIMEOUT_SHOW_ERROR = 2000;
 const Setting = {

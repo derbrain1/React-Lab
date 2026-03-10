@@ -1,42 +1,64 @@
 import { useParams } from "react-router-dom";
 import { Logo } from "../../../components/logo/logo";
-import type { FullOffer, OffersList, CityOffer } from "../../../types/offer";
+import type {  OffersList, CityOffer } from "../../../types/offer";
 import { NotFoundPage } from "../not-found-page/not-found-page";
 import { ReviewForm } from "../../../components/review-form/review-form";
-import type { ReviewType } from "../../../types/review";
 import { ReviewsList } from "../../../components/review-list/review-list";
 import { Map } from "../../../components/map/map";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CitiesCardList } from "../../../components/cities-card-list/cities-card-list";
+import { useAppDispatch, useAppSelector } from "../../../hooks";
+import { fetchOfferAction, fetchOfferReviewsAction, logoutAction } from "../../../store/api-action";
+import { AuthorizationStatus } from "../../../const";
+import { LoadingPage } from "../loading-page/loading-page";
 
-type OfferProps = {
-  offers: FullOffer[];
-  offerList: OffersList[];
-  reviews: ReviewType[];
-}
-
-function OfferPage({ offers, offerList, reviews }: OfferProps) {
-  
+function OfferPage() {
   const params = useParams();
-  const offer = offers.find((item) => item.id === params.id);
-  const favoriteCount = offerList.filter(item => item.isFavorite).length;
+  const dispatch = useAppDispatch();
+  
+  const currentOffer = useAppSelector((state) => state.currentOffer);
+  const offerReviews = useAppSelector((state) => state.offerReviews);
+  const allOffers = useAppSelector((state) => state.offers);
+  const user = useAppSelector((state) => state.user);
+  const isLoading = useAppSelector((state) => state.isFullOfferLoading); 
+  
+  const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
+
+  const handleLogout = () => {
+    dispatch(logoutAction());
+  };
+    
   const [hoveredOfferId, setHoveredOfferId] = useState<string | undefined>(undefined);
-  if (!offer) {
+
+  useEffect(() => {
+    if (params.id) {
+      dispatch(fetchOfferAction(params.id));
+      dispatch(fetchOfferReviewsAction(params.id));
+    }
+  }, [params.id, dispatch]);
+
+  if (isLoading) {
+    return <LoadingPage/>
+  }
+  if (!currentOffer) {
     return <NotFoundPage/>;
   }
 
-  
-  const nearbyOffers = offerList
+  const offer = currentOffer;
+ 
+   
+  const favoriteCount = allOffers.filter(item => item.isFavorite).length;
+
+  const nearbyOffers = allOffers
     .filter((item) => item.id !== offer.id && item.city.name === offer.city.name)
     .slice(0, 3);
-
 
   const currentOfferForMap: OffersList = {
     id: offer.id,
     title: offer.title,
     type: offer.type,
     price: offer.price,
-    previewImage: offer.images[0] || '', 
+    previewImage: '', 
     location: offer.location,
     city: offer.city,
     isFavorite: offer.isFavorite || false,
@@ -45,7 +67,6 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
   };
 
   const offersForMap = [currentOfferForMap, ...nearbyOffers];
-  
   
   const cityForMap: CityOffer = {
     name: offer.city.name,
@@ -66,19 +87,50 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
             </div>
             <nav className="header__nav">
               <ul className="header__nav-list">
-                <li className="header__nav-item user">
-                  <a className="header__nav-link header__nav-link--profile" href="/favorites">
-                    <div className="header__avatar-wrapper user__avatar-wrapper">
-                    </div>
-                    <span className="header__user-name user__name">Myemail@gmail.com</span>
-                    <span className="header__favorite-count">{favoriteCount}</span>
-                  </a>
-                </li>
-                <li className="header__nav-item">
-                  <a className="header__nav-link" href="#">
-                    <span className="header__signout">Sign out</span>
-                  </a>
-                </li>
+                {authorizationStatus === AuthorizationStatus.Auth ? (
+                  <>
+                    <li className="header__nav-item user">
+                      <a className="header__nav-link header__nav-link--profile" href="/favorites">
+                        <div className="header__avatar-wrapper user__avatar-wrapper">
+                          {user?.avatar && (
+                            <img 
+                              src={`http://localhost:5000${user.avatar}`}
+                              alt="User avatar"
+                              style={{ borderRadius: '50%', width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          )}
+                        </div>
+                        <span className="header__user-name user__name">
+                          {user?.email || 'user@example.com'}
+                        </span>
+                        <span className="header__favorite-count">{favoriteCount}</span>
+                      </a>
+                    </li>
+                    <li className="header__nav-item">
+                      <a 
+                        className="header__nav-link" 
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleLogout();
+                        }}
+                      >
+                        <span className="header__signout">Sign out</span>
+                      </a>
+                    </li>
+                  </>
+                ) : (
+                  <li className="header__nav-item user">
+                    <a 
+                      className="header__nav-link header__nav-link--profile" 
+                      href="/login"
+                    >
+                      <div className="header__avatar-wrapper user__avatar-wrapper">
+                      </div>
+                      <span className="header__login">Sign in</span>
+                    </a>
+                  </li>
+                )}
               </ul>
             </nav>
           </div>
@@ -89,7 +141,7 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
         <section className="offer">
           <div className="offer__gallery-container container">
             <div className="offer__gallery">
-              {offer.images.map((item) => (
+              {offer.photos.map((item) => (
                 <div key={item} className="offer__image-wrapper">
                   <img className="offer__image" src={item} alt="Photo studio" />
                 </div>
@@ -151,7 +203,8 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
                 <h2 className="offer__host-title">Meet the host</h2>
                 <div className="offer__host-user user">
                   <div className={`offer__avatar-wrapper ${offer.host.isPro ? 'offer__avatar-wrapper--pro' : ''} user__avatar-wrapper`}>
-                    <img className="offer__avatar user__avatar" src={offer.host.avatarUrl} width="74" height="74" alt="Host avatar"/>
+                    <img className="offer__avatar user__avatar" src={offer.host.avatarUrl} width="74" height="74" alt="Host avatar" style={{ 
+      width: '100%', height: '100%', objectFit: 'cover',borderRadius: '50%'}}/>
                   </div>
                   <span className="offer__user-name">
                     {offer.host.name}
@@ -169,18 +222,18 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
                 </div>
               </div>
               <section className="offer__reviews reviews">
-                <ReviewsList reviews={reviews} />
-                <ReviewForm />
-              </section>
+              <ReviewsList reviews={offerReviews} />
+              {authorizationStatus === AuthorizationStatus.Auth && <ReviewForm />}
+            </section>
             </div>
           </div>
           
           <section className="offer__map map">
             <Map 
-            offers={offersForMap} 
-            city={cityForMap} 
-            selectedOfferId={hoveredOfferId || offer.id} 
-          />
+              offers={offersForMap} 
+              city={cityForMap} 
+              selectedOfferId={hoveredOfferId || offer.id} 
+            />
           </section>
         </section>
         
@@ -188,11 +241,10 @@ function OfferPage({ offers, offerList, reviews }: OfferProps) {
           <section className="near-places places">
             <h2 className="near-places__title">Other places in the neighbourhood</h2>
             <CitiesCardList 
-                offersList={nearbyOffers} 
-                onCardHover={setHoveredOfferId}
-                cardClass="near-places__card place-card"
-              />
-            
+              offersList={nearbyOffers} 
+              onCardHover={setHoveredOfferId}
+              cardClass="near-places__card place-card"
+            />
           </section>
         </div>
       </main>
