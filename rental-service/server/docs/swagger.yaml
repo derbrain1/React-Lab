@@ -1,0 +1,309 @@
+openapi: 3.0.0
+info:
+  title: Housing Rental API
+  version: 1.0.0
+  description: API для работы с предложениями, отзывами и пользователями
+servers:
+  - url: http://localhost:5000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+  - name: Users
+  - name: Offers
+  - name: Reviews
+paths:
+  /login:
+    post:
+      summary: Авторизация пользователя
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+            example:
+              email: Elena10@hotmail.com
+              password: uRkJD1wjiW
+      responses:
+        "200":
+          description: Успешный логин, возвращает токен
+  /offers:
+    post:
+      summary: Создание нового предложения
+      description: >
+        Создает новое предложение (offer). Принимает данные в формате
+        multipart/form-data. Поле previewImage обязательно. Поле photos — массив
+        из 6 файлов.
+      tags:
+        - Offers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - city
+                - price
+                - rooms
+                - guests
+                - previewImage
+              properties:
+                title:
+                  type: string
+                  example: deprecator cedo demo
+                description:
+                  type: string
+                  example: Amplexus delicate coniuratio. Blandior tamdiu patruus uter confugo
+                    teres hic adamo. Utrum aro molestias verbum a tego adiuvo
+                    credo aegrus.
+                publishDate:
+                  type: string
+                  format: date
+                  example: 2026-03-17
+                city:
+                  type: string
+                  example: Amsterdam
+                isPremium:
+                  type: boolean
+                  example: false
+                isFavorite:
+                  type: boolean
+                  example: true
+                rating:
+                  type: number
+                  example: 4.4
+                type:
+                  type: string
+                  example: apartment
+                rooms:
+                  type: integer
+                  example: 1
+                guests:
+                  type: integer
+                  example: 5
+                price:
+                  type: number
+                  example: 349
+                features:
+                  type: string
+                  description: JSON-строка массива из значений 'Breakfast', 'Air conditioning',
+                    'Laptop friendly workspace', 'Baby seat', 'Washer',
+                    'Towels', 'Fridge'
+                  example: Laptop friendly workspace,Washer,Baby seat,Towels,Breakfast
+                commentsCount:
+                  type: integer
+                  example: 42
+                latitude:
+                  type: number
+                  example: -58.2565
+                longitude:
+                  type: number
+                  example: 51.8337
+                userId:
+                  type: integer
+                  example: 1
+                previewImage:
+                  type: string
+                  format: binary
+                  description: Основное изображение (обязательно)
+                photos:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Дополнительные изображения
+            examples:
+              generated:
+                summary: Сгенерированный пример (только текстовые поля)
+                value:
+                  title: deprecator cedo demo
+                  description: Amplexus delicate coniuratio. Blandior tamdiu patruus uter confugo
+                    teres hic adamo. Utrum aro molestias verbum a tego adiuvo
+                    credo aegrus.
+                  publishDate: 2026-03-17
+                  city: Amsterdam
+                  isPremium: false
+                  isFavorite: true
+                  rating: 4.4
+                  type: apartment
+                  rooms: 1
+                  guests: 5
+                  price: 349
+                  features: Laptop friendly workspace,Washer,Baby seat,Towels,Breakfast
+                  commentsCount: 42
+                  latitude: -58.2565
+                  longitude: 51.8337
+                  userId: 1
+      responses:
+        "201":
+          description: Предложение успешно создано
+        "400":
+          description: Ошибка валидации данных
+        "401":
+          description: Не авторизован
+    get:
+      summary: Получить все предложения
+      tags:
+        - Offers
+      responses:
+        "200":
+          description: Список предложений
+  /offers/{id}:
+    get:
+      summary: Получить полную информацию о предложении
+      tags:
+        - Offers
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Детальная информация о предложении
+        "404":
+          description: Предложение не найдено
+  /favorite:
+    get:
+      summary: Получить избранные предложения
+      tags:
+        - Offers
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Список избранных предложений
+  /favorite/{offerId}/{status}:
+    post:
+      summary: Добавить/удалить предложение из избранного
+      tags:
+        - Offers
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - "0"
+              - "1"
+      responses:
+        "200":
+          description: Статус обновлен
+  /comments/{offerId}:
+    get:
+      summary: Получить комментарии к предложению
+      tags:
+        - Reviews
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Список комментариев
+    post:
+      summary: Добавить комментарий
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: offerId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+      responses:
+        "201":
+          description: Комментарий добавлен
+  /register:
+    post:
+      summary: Регистрация пользователя
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: Delilah.Rodriguez77@gmail.com
+                password:
+                  type: string
+                  example: My1gad8GSO
+                username:
+                  type: string
+                  example: Elsa.Parisian
+                userType:
+                  type: string
+                  enum:
+                    - pro
+                    - regular
+                  example: pro
+                avatar:
+                  type: string
+                  format: binary
+            examples:
+              generated:
+                summary: Сгенерированный пример (текстовые поля)
+                value:
+                  email: Delilah.Rodriguez77@gmail.com
+                  password: My1gad8GSO
+                  username: Elsa.Parisian
+                  userType: pro
+      responses:
+        "200":
+          description: Пользователь зарегистрирован
+  /logout:
+    delete:
+      summary: Выход из системы
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Успешный выход
