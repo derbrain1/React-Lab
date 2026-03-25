@@ -9,6 +9,8 @@ import type { UserData } from "../types/user-data";
 import type { ReviewType } from "../types/review";
 
 
+
+
 const defaultCity = getCity('Paris', CITIES_LOCATION);
 
 export type InitialState = {
@@ -66,8 +68,7 @@ const reducer = createReducer(initialState, (builder) => {
         })
         .addCase(setFullOfferLoading, (state, action) => {
             state.isFullOfferLoading = action.payload;
-        });
-        
+        });    
     
 });
 

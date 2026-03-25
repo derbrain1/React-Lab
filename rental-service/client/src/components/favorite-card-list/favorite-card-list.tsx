@@ -1,5 +1,7 @@
 import { FavoriteCard } from "../favorite-card/favorite-card";
 import type { OffersList } from "../../types/offer";
+import { useAppDispatch } from "../../hooks";
+import { toggleFavoriteAction } from "../../store/api-action";
 
 type FavoriteCardListProps = {
   favoriteOffers: OffersList[];
@@ -17,8 +19,14 @@ function groupOffersByCity(offers: OffersList[]) {
 }
 
 function FavoriteCardList({ favoriteOffers }: FavoriteCardListProps) {
+  const dispatch = useAppDispatch();
   
   const filteredFavorites = favoriteOffers.filter(offer => offer.isFavorite);
+  
+  const handleToggleFavorite = (offerId: string, isFavorite: boolean) => {
+    dispatch(toggleFavoriteAction({ offerId, status: !isFavorite }));
+  };
+  
   if (filteredFavorites.length === 0) {
     return (
       <section className="favorites favorites--empty">
@@ -56,6 +64,8 @@ function FavoriteCardList({ favoriteOffers }: FavoriteCardListProps) {
                   isPremium={offer.isPremium}
                   previewImage={offer.previewImage}
                   rating={offer.rating}
+                  isFavorite={offer.isFavorite}
+                  onToggleFavorite={handleToggleFavorite}
                 />
               ))}
             </div>

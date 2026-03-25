@@ -9,12 +9,16 @@ type FavoriteCardProps = {
   isPremium: boolean;
   previewImage: string;
   rating: number;
-  city?: {
-    name: string;
-  };
+  isFavorite: boolean;
+  onToggleFavorite: (offerId: string, isFavorite: boolean) => void;
 };
 
-function FavoriteCard({ id, title, type, price, isPremium, previewImage, rating }: FavoriteCardProps) {
+function FavoriteCard({ id, title, type, price, isPremium, previewImage, rating, isFavorite, onToggleFavorite }: FavoriteCardProps) {
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onToggleFavorite(id, isFavorite);
+  };
+
   return (
     <article className="favorites__card place-card">
       {isPremium && (
@@ -33,7 +37,11 @@ function FavoriteCard({ id, title, type, price, isPremium, previewImage, rating 
             <b className="place-card__price-value">&euro;{price}</b>
             <span className="place-card__price-text">&#47;&nbsp;night</span>
           </div>
-          <button className="place-card__bookmark-button place-card__bookmark-button--active button" type="button">
+          <button 
+            className="place-card__bookmark-button place-card__bookmark-button--active button" 
+            type="button"
+            onClick={handleFavoriteClick}
+          >
             <svg className="place-card__bookmark-icon" width="18" height="19">
               <use href="/img/icon-bookmark.svg"></use>
             </svg>

@@ -7,24 +7,23 @@ import { Map } from "../../../components/map/map";
 import { useState, useEffect } from "react";
 import { CitiesCardList } from "../../../components/cities-card-list/cities-card-list";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
-import { fetchOfferAction, fetchOfferReviewsAction } from "../../../store/api-action";
-import { AuthorizationStatus } from "../../../const";
+import { fetchOfferAction, fetchOfferReviewsAction, toggleFavoriteAction } from "../../../store/api-action";
+import { AuthorizationStatus, AppRoute } from "../../../const";
 import { LoadingPage } from "../loading-page/loading-page";
 import { Header } from "../../../components/header/header";
+import { useNavigate } from "react-router-dom";
 
 function OfferPage() {
   const params = useParams();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   
   const currentOffer = useAppSelector((state) => state.currentOffer);
   const offerReviews = useAppSelector((state) => state.offerReviews);
   const allOffers = useAppSelector((state) => state.offers);
   const isLoading = useAppSelector((state) => state.isFullOfferLoading); 
-  
   const authorizationStatus = useAppSelector((state) => state.authorizationStatus);
-
   
-    
   const [hoveredOfferId, setHoveredOfferId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -34,6 +33,20 @@ function OfferPage() {
     }
   }, [params.id, dispatch]);
 
+  const handleFavoriteClick = () => {
+    if (!currentOffer) return;
+    
+    if (authorizationStatus !== AuthorizationStatus.Auth) {
+      navigate(AppRoute.Login);
+      return;
+    }
+    
+    dispatch(toggleFavoriteAction({ 
+      offerId: currentOffer.id, 
+      status: !currentOffer.isFavorite 
+    }));
+  };
+
   if (isLoading) {
     return <LoadingPage/>
   }
@@ -42,8 +55,6 @@ function OfferPage() {
   }
 
   const offer = currentOffer;
- 
-   
   
   const nearbyOffers = allOffers
     .filter((item) => item.id !== offer.id && item.city.name === offer.city.name)
@@ -100,11 +111,15 @@ function OfferPage() {
                 <h1 className="offer__name">
                   {offer.title}
                 </h1>
-                <button className="offer__bookmark-button button" type="button">
+                <button 
+                  className={`offer__bookmark-button button ${offer.isFavorite ? 'offer__bookmark-button--active' : ''}`}
+                  type="button"
+                  onClick={handleFavoriteClick}
+                >
                   <svg className="offer__bookmark-icon" width="31" height="33">
                     <use href="/img/icon-bookmark.svg"></use>
                   </svg>
-                  <span className="visually-hidden">To bookmarks</span>
+                  <span className="visually-hidden">{offer.isFavorite ? 'In bookmarks' : 'To bookmarks'}</span>
                 </button>
               </div>
               <div className="offer__rating rating">
@@ -144,7 +159,7 @@ function OfferPage() {
                 <div className="offer__host-user user">
                   <div className={`offer__avatar-wrapper ${offer.host.isPro ? 'offer__avatar-wrapper--pro' : ''} user__avatar-wrapper`}>
                     <img className="offer__avatar user__avatar" src={offer.host.avatarUrl} width="74" height="74" alt="Host avatar" style={{ 
-      width: '100%', height: '100%', objectFit: 'cover',borderRadius: '50%'}}/>
+                      width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%'}}/>
                   </div>
                   <span className="offer__user-name">
                     {offer.host.name}
@@ -162,9 +177,9 @@ function OfferPage() {
                 </div>
               </div>
               <section className="offer__reviews reviews">
-              <ReviewsList reviews={offerReviews} />
-              {authorizationStatus === AuthorizationStatus.Auth && <ReviewForm />}
-            </section>
+                <ReviewsList reviews={offerReviews} />
+                {authorizationStatus === AuthorizationStatus.Auth && <ReviewForm />}
+              </section>
             </div>
           </div>
           

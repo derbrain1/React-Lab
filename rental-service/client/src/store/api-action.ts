@@ -94,9 +94,15 @@ const fetchOfferAction = createAsyncThunk<void, string, {
     'data/fetchOffer',
     async (offerId, {dispatch, extra: api}) => {
         dispatch(setFullOfferLoading(true));
-        const { data } = await api.get(`${APIRoute.Offers}/${offerId}`);
-        dispatch(setCurrentOffer(data));
-        dispatch(setFullOfferLoading(false));
+        try {
+            const { data } = await api.get(`${APIRoute.Offers}/${offerId}`);
+            dispatch(setCurrentOffer(data));
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (error) {
+            dispatch(setCurrentOffer(null));
+        } finally {
+            dispatch(setFullOfferLoading(false));
+        }
     }
 );
 
@@ -125,5 +131,30 @@ const postReviewAction = createAsyncThunk<void, { offerId: string; comment: stri
         dispatch(fetchOfferReviewsAction(offerId));
     }
 );
-
-export {clearErrorAction, fetchOffersAction, checkAuthAction, loginAction, logoutAction, setCurrentOffer, postReviewAction, fetchOfferAction, fetchOfferReviewsAction}
+const toggleFavoriteAction = createAsyncThunk<
+  void,
+  { offerId: string; status: boolean },
+  { dispatch: AppDispatch; state: State; extra: AxiosInstance }
+>(
+  'user/toggleFavorite',
+  async ({ offerId, status }, { dispatch, getState, extra: api, rejectWithValue }) => {
+    try {
+      await api.post(`${APIRoute.Favorite}/${offerId}/${status ? '1' : '0'}`);
+      
+      const state = getState();
+      const offers = state.offers.map(offer => 
+        offer.id === offerId ? { ...offer, isFavorite: status } : offer
+      );
+      dispatch(offersCityList(offers));
+      
+      if (state.currentOffer?.id === offerId) {
+        dispatch(setCurrentOffer({ ...state.currentOffer, isFavorite: status }));
+      }
+      
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return rejectWithValue('Failed to toggle favorite');
+    }
+  }
+);
+export {clearErrorAction, toggleFavoriteAction, fetchOffersAction, checkAuthAction, loginAction, logoutAction, setCurrentOffer, postReviewAction, fetchOfferAction, fetchOfferReviewsAction}
